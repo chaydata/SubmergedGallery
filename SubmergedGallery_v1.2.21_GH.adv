@@ -1,0 +1,788 @@
+######################################
+#    Submerged Gallery            ###
+#    by Chris Hay 2021               #
+######################################
+
+# https://adventuron.io/betabeta/
+
+######################################
+#  Game Information                  #
+######################################
+
+## This information is used when packaging the html file
+## and for determining the key to use for save slots in 
+## the browser (the uuid stops save game collisions)
+
+game_information {
+
+   game_name        = Submerged Gallery
+   game_shortname   = Submerged
+   written_by       = Chris Hay aka Eldritch Renaissance Cake
+   year_of_original = 2021
+   year_of_release  = 2021
+   # https://www.uuidgenerator.net/
+   # v4 uuid
+   uuid             = 5222c542-2b97-49f7-b327-af38072993fb
+   short_synopsis   = Experience submechanophobia images with short captions and audio, in this retro virtual gallery.
+   game_version     = 1.2.21
+   compatibility_version = 2
+   
+}
+
+######################################
+#  Game Settings                     #
+######################################
+
+# Chris Ainsley recommends putting this in, so images are pre-cached and they won't "pop" in a second late each time a new one is encountered.
+game_settings {
+   precache_strategy = precache_all
+   image_load_strategy = synchronous
+}
+
+
+###############################
+## THEME                     ##
+###############################
+
+themes {
+   
+   Submerged_theme : theme {
+
+      theme_settings {
+         font            = bamburgh
+         layout          = SB G LOCK D O
+         layout_mobile   = SB G LOCK D O
+         columns         = 80
+         keyboard_click  = off
+         success_jingle  = off
+         failure_jingle  = off
+         wingame_jingle  = off
+         losegame_jingle = off
+      }
+      
+      colors {
+         pen              = #BDC
+         paper            = #111
+         status_bar_paper = #135
+         status_bar_pen   = #BDC
+         ### LOCATION TEXT IS #ecb
+         # make sure for Exit if change the colour also do the exist list header under system messages!
+      }
+
+      screen {
+         paragraph_spacing_multiplier = 0.25
+         padding_horz                 = 1
+         widescreen_horz_ratio = 0.4
+         snap_mode = free
+      }
+# Chris A solution to images being too large:
+#Your image is the wrong aspect ratio for the "normal" rendering method in Adventuron
+#It's nothing that you've done wrong really, other than to ignore the advice in the tutorials, but the main problem is that adventuron doesn't do background graphics right now.
+#A workaround is to shrink the field of view of a page using the "screen {}" section
+#That will apply a border to the left and right of the main content area
+#This will still cause a problem on mobile
+#As there will not be enough space to have side borders on mobile
+#This is the primary reason for the advice to use letterbox aspect ratio graphics
+#BUT, future versions of adventuron will let you overlay text atop of an image, using a border to make the text legible atop of similar colours. I honestly can't tell you when that will be ready.
+ 
+
+      system_messages {
+
+      }
+
+      status_bar {
+         // If you want to display a per-location header in the status
+         // bar then comment out the fixed text line above, and uncomment this line
+         // Each location will need header="" specifying too
+         //: header_text;
+
+         : header_text;
+         # comment out the next line if decide not to show score (note is associated with strings section!)
+         : dynamic_text "score_topright" ;
+
+      }
+   # Submerged Theme end bracket
+   }
+   
+   stagger_theme: theme {
+      extends = Submerged_theme
+      theme_settings {
+      experimental_default_stagger_mode = true
+      }
+   }
+
+}
+
+######################################
+#  Strings                           #
+######################################
+
+strings {
+   // NOTE : This syntax is due to change (slightly) in later revisions of Adventuron.
+   score_topright : dynamic_string {(
+      int_exhibits_visited <6 ? ( int_exhibits_visited + "/5" ) : ( "5/5" + " +1" )
+   )}
+}
+
+
+######################################
+#  Integers                          #
+######################################
+
+integers {
+   
+   # this is used to count the number of exhibits you've visited'
+   int_exhibits_visited : integer "0" ;
+   
+}
+
+
+######################################
+# on_startup                         #
+######################################
+
+## The on_startup hook runs at the start of the game, one time per game.
+
+on_startup {
+
+   # line gap for aesthetics
+   : stop_music ;
+   : stop_incidental ;
+   : print " " ;
+   
+   # Title Graphic!
+   : print_graphic "gallery_lake_day_png" width = "40" align = "center" ;
+   : play_music "music_gallery_lake_day" ;
+
+   
+# Text title info w music
+   : print "^c^<~~ SUBMERGED GALLERY ~~<#ecb>>\n<Code & Music\nby Chris Hay 2021\n(Eldritch Renaissance Cake)<#bdc>>\n<Photos by various (see credits)<#bdc>>\n<CRT emulation process by Mrmo Tarius<#bdc>>\n<Made with Adventuron Classroom<#bdc>>" ;
+   
+   // Can alter content for mobile platforms
+   : if (is_mobile()) {
+         : print "^c^<TAP SCREEN to enter the gallery.<#ecb>>" ;
+   }
+   : else {
+      : print "^c^<CLICK or press ENTER to enter the gallery.<#ecb>>" ;
+   }
+
+   # short screen between title and game start about swimming to the gallery
+   : press_any_key ;
+   : clear_screen;
+   : set_theme "stagger_theme";
+   : play_incidental sound="incidental_swimming";
+   : print " ";
+   : print "^c^Y o u\ns w i m\nt o\nt h e\ng a l l e r y\n. . .^c^";
+   : press_any_key ; 
+   : clear_screen;
+   : set_theme "Submerged_theme";
+
+}
+
+
+######################################
+#  STARTUP                           #
+######################################
+
+start_at = gallery_rotunda
+
+
+######################################
+#  Locations                         #
+######################################
+
+# locations exist but are not connected by directions (an unusual use of Adventuron)
+
+locations {
+
+   gallery_rotunda : location "<The round main room of the gallery, photographed by Michael Brnd.<#ecb>>" graphic = "gallery_rotunda_png" header = "Gallery Rotunda" ;
+   underwater_staircase : location "<Underwater Staircase, photographed by Francesco Ungaro.<#ecb>>" graphic = "underwater_staircase_png" header = "Underwater Staircase";
+   beach_serpent : location "<Beach Serpent, photographed by Yves LC.<#ecb>>" graphic = "beach_serpent_png" header = "Beach Serpent";
+   sunken_statues : location "<Sunken Statues, photo and sculpture exhibit by Jason DeCaires Taylor.<#ecb>>" graphic = "sunken_statues_png" header = "Sunken Statues";
+   drowned_crosses : location "<Drowned Crosses, photographed by Rene Weterings.<#ecb>>" graphic = "drowned_crosses_png" header = "Drowned Crosses";
+   abandoned_container : location "<Abandoned Container, photo credit to NOAA/MBARI.<#ecb>>" graphic = "abandoned_container_png" header = "Abandoned Container";
+   dragon_teeth : location "<Dragon Teeth, photographed by Gatien Cosendey.<#ecb>>" graphic = "dragon_teeth_png" header = "Dragon Teeth";
+   gallery_lake : location graphic = "gallery_lake_night_png" header = "Gallery Lake";
+   
+}
+
+######################################
+#  Connections                       #
+######################################
+
+# again none, see locations note
+
+connections {
+
+   from, direction, to = [
+      
+   ]
+   
+}
+
+
+########################################
+#  Blocks                              #
+########################################
+
+# none, see locations note
+# potentially could force player to view rooms in a certain order - but only if using actual 'locations'!
+
+barriers {
+   
+}
+
+######################################
+#  Objects                           #
+######################################
+
+# none ?
+# or may decide to add little <rewards<#r>> for visiting each room?
+
+objects {
+   
+}
+
+
+######################################
+#  Booleans                          #
+######################################
+
+# potentially useful?
+
+booleans {
+   visited_underwater_staircase : boolean;
+   visited_beach_serpent : boolean;
+   visited_sunken_statues : boolean;
+   visited_drowned_crosses : boolean;
+   visited_abandoned_container : boolean;
+   visited_dragon_teeth : boolean;
+   room_opened : boolean;
+   
+}
+
+######################################
+#  Vocabulary                        #
+######################################
+
+# parser is never used in this game (unusual), so no vocab needed
+
+vocabulary {
+   
+}
+
+
+########################################
+#  Commands                            #
+########################################
+
+# again, not making use of parser
+# everything choice based
+# so don't need anything here'
+
+on_command {
+
+}
+
+
+######################################
+#  On Describe                       #
+######################################
+
+# On describe is a block of code that is executed when describing a location (entering a new location or redescribing it). It can be used to embelish a location description, or to trigger game events.
+
+on_describe {
+
+   #~~~~~~~~~~~~~~~~~~#
+   # Gallery Rotunda  #
+   #~~~~~~~~~~~~~~~~~~#
+
+   : if (is_at "gallery_rotunda") {
+      # Choose an exhibit to view - two scenarios
+      #: press_any_key ;
+         
+      # if you've visited less than five, you only get the five choices
+      : if (int_exhibits_visited < 5) {
+         : add_choice "Underwater Staircase"  {
+            : if (!visited_underwater_staircase) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_underwater_staircase" ;
+            }
+            : goto "underwater_staircase";
+            : redescribe;
+         }
+         : add_choice "Beach Serpent"  {
+            : if (!visited_beach_serpent) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_beach_serpent" ;
+            }
+            : goto "beach_serpent";
+            : redescribe;
+         }
+         : add_choice "Sunken Statues"  {
+            : if (!visited_sunken_statues) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_sunken_statues" ;
+            }
+            : goto "sunken_statues";
+            : redescribe;
+         }
+         : add_choice "Drowned Crosses"  {
+            : if (!visited_drowned_crosses) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_drowned_crosses" ;
+            }
+            : goto "drowned_crosses";
+            : redescribe;
+         }
+         : add_choice "Abandoned Container"  {
+            : if (!visited_abandoned_container) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_abandoned_container" ;
+            }
+            : goto "abandoned_container";
+            : redescribe;
+         }
+#         : add_choice "Dragon Teeth"  {
+#            : goto "dragon_teeth";
+#            : redescribe;
+#         }
+         : choose "Choose which exhibit you would like to view..." ;
+      # if end bracket
+      }
+      
+      # if you've visited the first five, then the bonus sixth room is available, along with the exit
+      #: else_if (int_exhibits_visited == 5) {
+      : else_if (int_exhibits_visited == 5 && !room_opened ) {
+         : clear_screen;
+         : set_theme "stagger_theme";
+         : play_incidental sound="incidental_room_opened";
+         : print "^c^A n\na d d i t i o n a l\ne x h i b i t\nh a s\nb e e n\nr e v e a l e d\n. . .\nW i l l\ny o u\nv i e w\ni t , o r\ne s c a p e\nw h i l e\ny o u\nc a n\n?\n^c^";
+         : press_any_key ;
+         : set_true "room_opened" ;
+         : set_theme "Submerged_theme";
+         : goto "gallery_rotunda";
+         : redescribe;
+      # else_if end bracket
+      }
+
+      : else {
+         : add_choice "Underwater Staircase"  {
+            : goto "underwater_staircase";
+            : redescribe;
+         }
+         : add_choice "Beach Serpent"  {
+            : goto "beach_serpent";
+            : redescribe;
+         }
+         : add_choice "Sunken Statues"  {
+            : goto "sunken_statues";
+            : redescribe;
+         }
+         : add_choice "Drowned Crosses"  {
+            : goto "drowned_crosses";
+            : redescribe;
+         }
+         : add_choice "Abandoned Container"  {
+            : goto "abandoned_container";
+            : redescribe;
+         }
+         : add_choice "Dragon Teeth"  {
+            : if (!visited_dragon_teeth) {
+               : increment "int_exhibits_visited" ;
+               : set_true "visited_dragon_teeth" ;
+            }
+            : goto "dragon_teeth";
+            : redescribe;
+         }
+         : add_choice "EXIT Gallery"  {
+            # first brings to escape sub for sound and text of swimming away, then that will lead to the gallery lake at night
+            : gosub "escape_sub" ;
+         }
+         : choose "Choose which exhibit you would like to view..." ;
+      # else end bracket
+      }
+   # gallery rotunda end bracket
+   }
+
+
+   #~~~~~~~~~~~~~~~~~~~~~~#
+   # Underwater Staircase #
+   #~~~~~~~~~~~~~~~~~~~~~~#
+   : if (is_at "underwater_staircase") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "As harmless as it may seem, there is something sinister and creepy about this staircase. As though it invites you to travel downward into the dark depths of the water.";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo by Francesco Ungaro\nOriginal title: View Of Wooden Steps Taken Underwater\nTaken 2019-10-13 at 7:04 am\nLicense: free to use, no attribution required\nhttps://www.pexels.com/photo/view-of-wooden-steps-taken-underwater-3634369/";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+
+   # underwater staircase end bracket   
+   }
+
+   #~~~~~~~~~~~~~~~#
+   # Beach Serpent #
+   #~~~~~~~~~~~~~~~#
+   : if (is_at "beach_serpent") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "A photographer left their camera at the beach to get a series of sunset photos, having set the camera to snap a photo every 30 seconds… Later when the photographer checked the stills, they discovered something terrifying had visited the beach while they were away - some kind of impossibly enormous, bony serpent!";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo by Yves LC\nOriginal title: Le Serpent d'océan à Saint-Brevin-les-Pins.\nTaken 1 September 2014, 8:20 pm\nLicense:  Creative Commons Attribution-Share Alike 3.0 Unported\nhttps://commons.wikimedia.org/wiki/File:St-Brevin-serpent1.jpg";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+
+
+   # beach serpent end bracket   
+   }
+
+   #~~~~~~~~~~~~~~~~#
+   # Sunken Statues #
+   #~~~~~~~~~~~~~~~~#
+   : if (is_at "sunken_statues") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Here is a photo of an underwater art exhibit that some believe to be haunted. Divers report hearing voices while swimming around the statues, and there are unexplainable discrepancies between photos of the statues' postures and expressions. There is no agreement on the number of statues that have their eyes open, or how many have their fists clenched - as if the numbers change daily. And that stone child did not have its mouth open in a scream until recent years...";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo and sculpture exhibit credit to Jason DeCaires Taylor\nOriginal name: Silent Evolution, Mexico\nhttps://www.underwatersculpture.com/works/underwater/";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+
+   # sunken statues end bracket   
+   }
+   
+   #~~~~~~~~~~~~~~~~~~#
+   # Drowned Crosses #
+   #~~~~~~~~~~~~~~~~~~#
+   : if (is_at "drowned_crosses") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Just off a Spanish island in the 16th century, a boat was overtaken by pirates and the crew were cruelly drowned. Recently stone crosses were dropped into the water at this location, in memoriam. Will this calm the stormy waters of the area and help the victims to rest in peace?";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo taken by Rene Weterings (instagram @rene_weterings_underwaterphoto)\nOriginal caption: An image of divesite 'Malpique' on the island of La Palma, Canarian islands. In 2000, 40 crosses were dropped into the sea to create a memorial site near where the murdering of 40 jesuists in the 16th century is believed to have happened.\nLicense: original photo copyright Rene Weterings, modified and used with permission solely for inclusion in this project\nhttps://www.instagram.com/p/CKLa79EBj79/";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+   # Drowned Crosses end bracket   
+   }
+   
+   #~~~~~~~~~~~~~~~~~~~~~#
+   # Abandoned Container #
+   #~~~~~~~~~~~~~~~~~~~~~#
+   : if (is_at "abandoned_container") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "There are countless abandoned shipping containers on the ocean floor… of course, it's too much trouble to retrieve them and some like this one are stuck closed. Many crates fall off ships accidentally, but what if some were dumped intentionally? And who knows what might be inside of those...";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo taken March 2011 by research team led by Andrew DeVogelaere and Jim Barry\nOriginal file name: container-2011-door-end3.jpg\nImage credit to: Monterey Bay Aquarium Research Institute, 2011\nAssociated scientific article:\nhttps://doi.org/10.1016/j.marpolbul.2014.04.014\nhttps://sanctuarysimon.org/dbtools/photo-library/id/4982";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+   # abandoned container end bracket   
+   }
+   
+   #~~~~~~~~~~~~~~#
+   # Dragon Teeth #
+   #~~~~~~~~~~~~~~#
+   : if (is_at "dragon_teeth") {
+      #: press_any_key ;
+      : add_choice "Read caption"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Here is something horrible found deep in a Swiss lake. Local divers swear by this photo that there is a kind of mechanical dragon trawling the depths, but others say it's a fake and no such thing exists…";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "View credits"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "Photo taken by Gatien Cosendey (instagram @gatiencosendey) with lights by Pascal Aubry (instagram @paco_aubry)\nOriginal caption: The dragon lies beneath the deep waters of Lake Neuchâtel, Switzerland\nLicense: photo copyright Gatien Cosendey, modified and used with permission solely for inclusion in this project\nhttps://gatiencosendey.photography/gallery/lake/#jp-carousel-342";
+         : press_any_key ;
+         : redescribe;
+      }
+      : add_choice "Return to rotunda"  {
+         : play_incidental sound = "incidental_dial_click" ;
+         : print "You decide to return to the rotunda.";
+         : press_any_key ;
+         : gosub "madness_sub" ;
+         : redescribe;
+      }
+         : choose "What would you like to do?" ;
+
+   # dragon teeth end bracket   
+   }
+
+
+   #~~~~~~~~~~~~~~#
+   # Gallery Lake #
+   #~~~~~~~~~~~~~~#
+   : if (is_at "gallery_lake") {
+      : set_theme "stagger_theme";
+      : print "^c^Y o u ~~ e s c a p e d\nw i t h ~~ y o u r\ns a n i t y ~~ i n ~~ t a c t\n. . .\nb u t ~~ t h e\nk n o w l e d g e ~~ o f\ns u b m e c h a n i c a l\nh o r r o r s ~~ i s\nu n f o r g e t t a b l e \n. . .^c^";
+      : press_any_key ;
+      : print "^c^<F O R T U N A T E ~~ E N D  :  E S C A P E<#ecb>>^c^" ;
+      : press_any_key ;
+      : clear_screen;
+      : set_theme "Submerged_theme";
+      : print "^c^<T H A N K S ~~ F O R ~~ P L A Y I N G !<#ecb>>^c^" ;
+      : print " ";
+      # Choices
+      : add_choice "Go back in time to just before you decided to leave the gallery"  {
+         : stop_incidental ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+      : add_choice "Quit / Restart"  {
+         : win_game ;
+      }
+      : choose "...NOW WHAT?" ;
+   # gallery lake end bracket 
+   }
+
+
+## on describe end bracket below
+}
+
+######################################
+#  On PreDescribe                    #
+######################################
+
+# use so music changes at diff places
+
+on_pre_describe {
+
+   : gosub "play_music_sub" ;
+
+   }
+
+#################################
+#  SUBROUTINES                  #
+#################################
+
+subroutines {
+
+   play_music_sub : subroutine {
+      : if (is_at "gallery_rotunda") {
+         : play_music "music_gallery_rotunda" ;
+      }
+      : if (is_at "underwater_staircase") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_underwater_staircase" ;
+      }
+      : if (is_at "beach_serpent") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_beach_serpent" ;
+      }
+      : if (is_at "sunken_statues") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_sunken_statues" ;
+      }
+      : if (is_at "drowned_crosses") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_drowned_crosses" ;
+      }
+      : if (is_at "abandoned_container") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_abandoned_container" ;
+      }
+      : if (is_at "dragon_teeth") {
+         : play_incidental sound = "incidental_dial_click" ;
+         : play_music "music_dragon_teeth" ;
+      }
+      : if (is_at "gallery_lake") {
+         # the gallery lake music is actually an incidental (play once) not music (loop)
+         : stop_music ;
+         : play_incidental "incidental_gallery_lake_night" ;
+      }
+   # play music subroutine end bracket
+   }
+   
+   madness_sub : subroutine {
+      : clear_screen;
+      : stop_music ;
+      : play_music "music_madness_ending" ;
+      : play_incidental "incidental_dial_click" ;
+      : pause "100" ;
+      : play_incidental "incidental_dial_click" ;
+      : pause "300" ;
+      : play_incidental "incidental_dial_click" ;
+      : pause "100" ;
+      : play_incidental "incidental_dial_click" ;
+      : pause "300" ;
+      : play_incidental "incidental_dial_click" ;
+      : set_theme "stagger_theme";
+      : print "^c^Y o u r\nm i n d\nb e c a m e\no v e r w h e l m e d\nf r o m\ne x p e r i e n c i n g\na l l ~~ of ~~ t h e\ng a l l e r y ' s\ns u b m e c h a n i c a l\nh o r r o r s\n. . .\nT h e r e ~~ i s ~~ n o\ne s c a p e\n. . .^c^";
+      : press_any_key ;
+      : print "^c^<U N F O R T U N A T E ~~ E N D  :  M A D N E S S<#ecb>>^c^" ;
+      : press_any_key ;
+      : clear_screen;
+      : set_theme "Submerged_theme";
+      : print "^c^<T H A N K S ~~ F O R ~~ P L A Y I N G !<#ecb>>^c^" ;
+      : print " ";
+      # Choices
+      : add_choice "Go back in time to just before you chose the dragon."  {
+         : set_false "visited_dragon_teeth" ;
+         : set_integer var = "int_exhibits_visited"  value = "5" ;
+         : goto "gallery_rotunda";
+         : redescribe;
+      }
+      : add_choice "Quit / Restart"  {
+         : lose_game;
+      }
+      : choose "...NOW WHAT?" ;
+   }
+   
+   escape_sub : subroutine {
+      : clear_screen;
+      : play_incidental "incidental_swimming" ;
+      : set_theme "stagger_theme";
+      : print "^c^Y o u\ns w i m\nb a c k\nt o\ns h o r e ,\ne s c a p i n g\nt h e\ng a l l e r y\n. . .^c^";
+      : press_any_key ;
+      : goto "gallery_lake";
+      : clear_screen;
+      : redescribe;
+   }
+
+
+# subroutines end bracket   
+}
+
+
+########################
+# ASSETS               #
+########################
+   
+assets {
+
+   sounds {
+      music_gallery_rotunda : sound_sample "gallery_rotunda.ogg" ;
+      music_underwater_staircase : sound_sample "underwater_staircase.ogg" ;
+      music_beach_serpent : sound_sample "beach_serpent.ogg" ;
+      music_sunken_statues : sound_sample "sunken_statues.ogg" ;
+      music_drowned_crosses : sound_sample "drowned_crosses.ogg" ;
+      music_abandoned_container : sound_sample "abandoned_container.ogg" ;
+      music_dragon_teeth : sound_sample "dragon_teeth.ogg" ;
+      music_gallery_lake_day : sound_sample "gallery_lake_day.ogg" ;
+      music_madness_ending : sound_sample "madness_ending.ogg" ;
+      incidental_gallery_lake_night : sound_sample "gallery_lake_night.ogg" ;
+      incidental_swimming : sound_sample "incidental_swimming.wav" ; 
+      incidental_room_opened : sound_sample "incidental_room_opened.wav" ; 
+      incidental_dial_click : sound_sample "incidental_dial_click.wav" ;
+   # sounds end bracket
+   }
+
+
+   graphics {
+   # intro/title
+      gallery_lake_day_png : png "gallery_lake_day.png";
+   # overlays
+      gallery_rotunda_night_png : png "gallery_rotunda_night.png"; 
+      gallery_rotunda_1_png : png "gallery_rotunda_1.png"; 
+      gallery_rotunda_2_png : png "gallery_rotunda_2.png"; 
+      gallery_rotunda_3_png : png "gallery_rotunda_3.png"; 
+      gallery_rotunda_4_png : png "gallery_rotunda_4.png"; 
+   # locations
+      gallery_rotunda_png : png "gallery_rotunda.png" {
+         # if you've visited 5 or more rooms, cover the day image with the night one'
+         : if (int_exhibits_visited > 4) {
+            : overlay "gallery_rotunda_night_png";
+         }
+         : else_if (int_exhibits_visited == 4) {
+            : overlay "gallery_rotunda_4_png";
+         }
+         : else_if (int_exhibits_visited == 3) {
+            : overlay "gallery_rotunda_3_png";
+         }
+         : else_if (int_exhibits_visited == 2) {
+            : overlay "gallery_rotunda_2_png";
+         }
+         : else_if (int_exhibits_visited == 1) {
+            : overlay "gallery_rotunda_1_png";
+         }
+         # (no need for final "else" since otherwise means there's just no overlay - have plain day one!)
+      }
+      abandoned_container_png : png "abandoned_container.png"; 
+      beach_serpent_png : png "beach_serpent.png" ;
+      dragon_teeth_png : png "dragon_teeth.png";
+      drowned_crosses_png : png "drowned_crosses.png";
+      sunken_statues_png : png "sunken_statues.png";
+      underwater_staircase_png : png "underwater_staircase.png";
+      gallery_lake_night_png : png "gallery_lake_night.png";
+   # graphics end bracket
+   }
+   
+# assets end bracket   
+}
+
