@@ -12,5 +12,6 @@ Please feel free to use the code for your own games (no credit needed). Just don
 ## Links
 [\~Play the game and view full info & credits\~](https://eldritchrenaissancecake.itch.io/submerged-gallery)  
 [\~Learn all about Adventuron\~](https://adventuron.io/)  
+[\~Take "Tutorial A" to write your first Adventuron game\~](https://adventuron.io/documentation/tutorial-a.html)  
 [\~Join the Adventuron Discord\~](https://discord.gg/QWxVmNvkC7)  
 [\~Follow me on other platforms\~](https://linktr.ee/EldritchRenaissanceCake)  
